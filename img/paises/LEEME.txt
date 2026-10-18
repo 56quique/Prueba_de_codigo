@@ -1,0 +1,2 @@
+Subí acá una foto por país, con el código en minúscula: no.webp, jp.webp, mx.webp, it.webp, etc. (también sirve .jpg).
+La lista completa de nombres está en el README.md.
