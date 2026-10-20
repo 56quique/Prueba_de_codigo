@@ -7,8 +7,8 @@
   },
   "hero": {
     "imagen": "img/hero.webp",
-    "frasePrincipal": "“Fuiste creada con un valor que nadie puede quitarte y un propósito que merece ser descubierto.”",
-    "fraseSecundaria": "Bienvenida a este espacio donde la fe, la vida y tus sueños se encuentran."
+    "frasePrincipal": "“Una vida con propósito, un diseño que merece ser descubierto.”",
+    "fraseSecundaria": "Bienvenida a un lugar para encontrar inspiración, aprender de la Palabra de Dios y descubrir cómo vivir con propósito en cada área de tu vida. Quiero acompañarte en tu crecimiento y recordarte que tu historia todavía tiene mucho por florecer."
   },
   "categorias": [
     { "nombre": "Artículos", "imagen": "img/categorias/articulos.webp", "href": "articulos.html", "color": "verde", "pronto": true },
