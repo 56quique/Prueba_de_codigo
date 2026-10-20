@@ -1,17 +1,10 @@
 (function(){
   'use strict';
   var $=function(s,r){return (r||document).querySelector(s);};
-  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-  function get(u){return fetch(u,{cache:'no-cache'}).then(function(r){if(!r.ok) throw new Error(u);return r.json();});}
-  function parrafos(a){return (a||[]).map(function(p){return '<p>'+esc(p)+'</p>';}).join('');}
-  var N=window.Novedades, D=window.Devocional;
+  var N=window.Novedades, D=window.Devocional, C=window.Comun, esc=C.esc, get=C.get, aviso=C.aviso;
   var estado={arts:[],dev:null,fecha:null,t:0,primera:true};
-
-  var toastT;
-  function aviso(msg){
-    var e=$('#toast'); e.textContent=msg; e.classList.add('on');
-    clearTimeout(toastT); toastT=setTimeout(function(){e.classList.remove('on');},2600);
-  }
+  /* Páginas que ya existen: aunque config.json marque "pronto", se abren normalmente. */
+  var PAGINAS=/^(articulos|recursos|contacto|devocional|testimonio)\.html/;
 
   /* ---------- Logo (texto editable o imagen) ---------- */
   function logo(l){
@@ -35,9 +28,11 @@
 
   /* ---------- Tarjetas ---------- */
   function img(src){return src?'<img src="'+esc(src)+'" alt="" loading="lazy" onerror="this.remove()">':'';}
-
-  function tarjetaExpandible(o){
-    return '<article class="tarjeta '+o.clase+'"'+(o.dev?' data-clave-dev="'+esc(o.dev)+'"':'')+'>'+
+  function resumenTexto(obj){
+    return C.lista(obj).slice(0,3).map(function(p){return '<p>'+C.conSaltos(C.limpiar(p))+'</p>';}).join('');
+  }
+  function tarjetaResumen(o){
+    return '<article class="tarjeta '+o.clase+'">'+
       '<div class="tarjeta-img">'+img(o.imagen)+'</div>'+
       '<div class="tarjeta-cuerpo">'+
         '<div class="fila-etiqueta"><span class="etiqueta">'+esc(o.etiqueta)+'</span>'+
@@ -45,16 +40,16 @@
         (o.fecha?'<time class="fecha">'+esc(o.fecha)+'</time>':'')+
         '<h3>'+esc(o.titulo)+'</h3>'+
         (o.referencia?'<p class="referencia">'+esc(o.referencia)+'</p>':'')+
-        '<div class="texto-fade">'+parrafos(o.parrafos)+'</div>'+
-        '<button type="button" class="btn-leer" data-leer aria-expanded="false">Leer más</button>'+
+        '<div class="texto-fade">'+resumenTexto(o.fuente)+'</div>'+
+        '<a class="btn-leer" href="'+esc(o.href)+'"'+(o.dev?' data-marcar-dev="'+esc(o.dev)+'"':'')+'>Leer más</a>'+
       '</div></article>';
   }
 
   function tarjetas(test,devs){
     var html='';
-    if(test) html+=tarjetaExpandible({clase:'t-testimonio',etiqueta:test.etiqueta||'Testimonio',titulo:test.titulo,imagen:test.imagen,parrafos:test.parrafos});
+    if(test) html+=tarjetaResumen({clase:'t-testimonio',etiqueta:test.etiqueta||'Testimonio',titulo:test.titulo||'Testimonio',imagen:test.imagen||'img/testimonio.webp',fuente:test,href:'testimonio.html'});
     var d=D.elegir(devs); estado.dev=d;
-    if(d) html+=tarjetaExpandible({clase:'t-devocional',etiqueta:'Devocional de hoy',dev:d.fecha,fecha:D.fechaLarga(d.fecha),titulo:d.titulo,referencia:d.referencia,imagen:d.imagen||'img/devocional.webp',parrafos:d.parrafos});
+    if(d) html+=tarjetaResumen({clase:'t-devocional',etiqueta:'Devocional de hoy',dev:d.fecha,fecha:D.fechaLarga(d.fecha),titulo:d.titulo,referencia:d.referencia,imagen:d.imagen||'img/devocional.webp',fuente:d,href:'devocional.html?fecha='+encodeURIComponent(d.fecha)});
     $('#tarjetas').innerHTML=html;
   }
 
@@ -62,7 +57,8 @@
   function carrusel(cats){
     $('#carrusel').innerHTML=(cats||[]).map(function(c){
       var conNum=c.insignia==='articulos'||/^articulos\.html/.test(c.href||'');
-      return '<a class="cat cat-'+esc(c.color||'verde')+(c.pronto?' pronto':'')+'" href="'+esc(c.href)+'">'+
+      var pronto=c.pronto&&!PAGINAS.test(c.href||'');
+      return '<a class="cat cat-'+esc(c.color||'verde')+(pronto?' pronto':'')+'" href="'+esc(c.href)+'">'+
         '<span class="cat-img">'+img(c.imagen)+'</span>'+
         (conNum?'<span class="cat-num" data-num-art hidden></span>':'')+
         '<span class="cat-pie"><span>'+esc(c.nombre)+'</span><span aria-hidden="true">→</span></span></a>';
@@ -81,7 +77,7 @@
           '<span class="nuevo" data-nuevo-art="'+esc(a.id)+'" hidden>Nuevo</span></div>'+
         '<h3>'+esc(a.titulo)+'</h3>'+
         '<p class="resumen">'+esc(a.resumen)+'</p>'+
-        '<a class="btn-leer pronto" data-art-id="'+esc(a.id)+'" href="articulo.html?id='+encodeURIComponent(a.id)+'">Leer más</a>'+
+        '<a class="btn-leer" data-art-id="'+esc(a.id)+'" href="articulo.html?id='+encodeURIComponent(a.id)+'">Leer más</a>'+
       '</div></article>';
   }
 
@@ -101,6 +97,7 @@
     document.querySelectorAll('[data-nuevo-dev]').forEach(function(el){el.hidden=!N.devNuevo(el.getAttribute('data-nuevo-dev'));});
     document.querySelectorAll('[data-nuevo-art]').forEach(function(el){el.hidden=!N.artNuevo(el.getAttribute('data-nuevo-art'));});
     document.querySelectorAll('[data-num-art]').forEach(function(el){el.textContent=nArt;el.hidden=nArt<1;});
+    C.puntos({dev:nDev,art:nArt});
     N.insignia(nDev+nArt);
   }
 
@@ -120,15 +117,19 @@
   window.addEventListener('appinstalled',function(){promptInst=null;$('#instalar').innerHTML='';});
   if(esIOS()&&!esStandalone()) bannerInstalar('ios');
 
+  /* ---------- Menú ---------- */
+  var bm=$('#btn-menu'), pm=$('#menu-panel');
+  function cerrarMenu(){pm.hidden=true;bm.setAttribute('aria-expanded','false');}
+  bm.addEventListener('click',function(e){e.stopPropagation();var abrir=pm.hidden;pm.hidden=!abrir;bm.setAttribute('aria-expanded',String(abrir));});
+  document.addEventListener('click',function(e){if(!pm.hidden&&!e.target.closest('#menu-panel')) cerrarMenu();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape') cerrarMenu();});
+
   /* ---------- Eventos ---------- */
   document.addEventListener('click',function(e){
-    var b=e.target.closest('[data-leer]');
-    if(b){
-      var card=b.closest('.tarjeta'), abierta=card.classList.toggle('abierta');
-      b.textContent=abierta?'Leer menos':'Leer más'; b.setAttribute('aria-expanded',abierta);
-      if(abierta&&card.getAttribute('data-clave-dev')){N.marcarDev(card.getAttribute('data-clave-dev'));refrescarAvisos();}
-      return;
-    }
+    var md=e.target.closest('[data-marcar-dev]');
+    if(md){N.marcarDev(md.getAttribute('data-marcar-dev'));refrescarAvisos();return;}
+    var l=e.target.closest('[data-art-id]');
+    if(l){N.marcarArt(l.getAttribute('data-art-id'));refrescarAvisos();return;}
     if(e.target.closest('#btn-instalar')&&promptInst){
       promptInst.prompt();
       promptInst.userChoice.then(function(){promptInst=null;$('#instalar').innerHTML='';});
@@ -139,10 +140,8 @@
       $('#instalar').innerHTML='';
       return;
     }
-    var l=e.target.closest('[data-art-id]');
-    if(l){N.marcarArt(l.getAttribute('data-art-id'));refrescarAvisos();}
     var p=e.target.closest('a.pronto,[data-pronto]');
-    if(p){e.preventDefault();aviso('Esta sección llega en la próxima etapa.');}
+    if(p){e.preventDefault();cerrarMenu();aviso('Esta sección llega en la próxima etapa.');}
   });
   $('#prev').addEventListener('click',function(){$('#carrusel').scrollBy({left:-$('#carrusel').clientWidth*.8,behavior:'smooth'});});
   $('#next').addEventListener('click',function(){$('#carrusel').scrollBy({left:$('#carrusel').clientWidth*.8,behavior:'smooth'});});
@@ -168,15 +167,11 @@
       if(estado.primera){revelar();estado.primera=false;}
     });
   }
+  C.iniciarPagina('inicio');
   cargarTodo();
 
   /* Al volver a la app después de un rato (o si cambió el día), busca contenido nuevo. */
   document.addEventListener('visibilitychange',function(){
     if(document.visibilityState==='visible'&&!estado.primera&&(Date.now()-estado.t>30*60*1000||D.hoyISO()!==estado.fecha)) cargarTodo();
   });
-
-  /* ---------- App instalable: service worker ---------- */
-  if('serviceWorker' in navigator){
-    window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
-  }
 })();

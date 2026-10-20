@@ -3,17 +3,18 @@
    - Datos (.json) y páginas: primero la red (así aparece el contenido nuevo); sin conexión, la copia guardada.
    - Tipografías de Google: se guardan la primera vez para funcionar sin internet.
    Si agregás archivos nuevos a PRECARGA o querés forzar una limpieza, subí el número de VERSION. */
-const VERSION = 'mda-v2';
+const VERSION = 'mda-v3';
 const PRECARGA = [
   './', 'index.html', 'manifest.json',
+  'articulos.html', 'articulo.html', 'devocional.html', 'testimonio.html', 'recursos.html', 'contacto.html',
   'css/estilos.css',
-  'js/app.js', 'js/devocional.js', 'js/novedades.js',
+  'js/app.js', 'js/devocional.js', 'js/novedades.js', 'js/comun.js', 'js/paginas.js',
   'icons/icon-192.png', 'icons/icon-512.png'
 ];
 const HOSTS_FUENTES = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(PRECARGA)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(PRECARGA.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {

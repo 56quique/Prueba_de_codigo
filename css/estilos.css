@@ -127,3 +127,87 @@ img{max-width:100%}
 .instalar .btn-leer{margin:0;white-space:nowrap}
 .instalar .cerrar{background:none;border:0;font-size:1.5rem;line-height:1;color:var(--salvia-os);cursor:pointer;padding:2px 8px}
 @media (prefers-reduced-motion:reduce){.nuevo{animation:none}}
+
+/* ---------- Etapa 3: barra inferior, menú y pantallas internas ---------- */
+.app{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
+#toast{bottom:calc(86px + env(safe-area-inset-bottom))}
+
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:560px;display:flex;z-index:15;
+  padding:6px 4px calc(6px + env(safe-area-inset-bottom));background:rgba(251,247,241,.97);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  border-top:1px solid rgba(80,60,40,.1)}
+.tab{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;color:var(--tinta-s);text-decoration:none;font-size:.68rem;font-weight:700}
+.tab.activa{color:var(--salvia-os)}
+.tab-ico{position:relative;display:grid;place-items:center;width:46px;height:28px;border-radius:999px}
+.tab.activa .tab-ico{background:var(--salvia-cl)}
+.tab-punto{position:absolute;top:0;right:7px;width:10px;height:10px;border-radius:50%;background:#A4524F;border:2px solid var(--crema)}
+.tab-punto[hidden]{display:none}
+
+.menu-panel{position:absolute;z-index:5;top:calc(max(18px,env(safe-area-inset-top)) + 48px);right:16px;min-width:200px;padding:8px;border-radius:18px;
+  background:rgba(251,247,241,.98);box-shadow:0 10px 30px rgba(60,50,40,.2)}
+.menu-panel[hidden]{display:none}
+.menu-panel a{display:block;padding:.65em 1em;border-radius:12px;color:var(--tinta);text-decoration:none;font-weight:600;font-size:.92rem}
+.menu-panel a:hover,.menu-panel a:focus-visible{background:var(--salvia-cl)}
+
+.cabecera{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:6px;padding:calc(8px + env(safe-area-inset-top)) 14px 8px 8px;
+  background:var(--crema);border-bottom:1px solid rgba(80,60,40,.08)}
+.volver{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;color:var(--salvia-os);text-decoration:none}
+.volver:hover{background:var(--salvia-cl)}
+.cabecera h1{margin:0;font:600 1.55rem/1.1 var(--serif);color:var(--tinta)}
+.pagina{padding:16px 16px 28px}
+.cargando,.vacio{color:var(--tinta-s);text-align:center;padding:30px 10px}
+.intro{margin:0 0 14px;color:var(--tinta-s)}
+
+/* lectura */
+.portada{border-radius:20px;overflow:hidden;aspect-ratio:16/10;margin-bottom:16px;background:linear-gradient(160deg,#F1D9D2,#D9E0D2)}
+.portada img{display:block;width:100%;height:100%;object-fit:cover}
+.lectura h2{margin:.35em 0 .15em;font:600 2.05rem/1.08 var(--serif);color:var(--tinta)}
+.lectura .meta{margin:.4em 0 0;font-size:.8rem;color:var(--tinta-s)}
+.lectura .referencia{margin:.2em 0 .6em}
+.cuerpo{margin-top:.9em;font-size:1.02rem;line-height:1.72}
+.cuerpo p{margin:0 0 1.05em}
+.cuerpo .sub{margin:1.5em 0 .4em;font:600 1.45rem/1.2 var(--serif);color:var(--salvia-os)}
+.cuerpo .cita{margin:1.3em 0;padding:.9em 1.1em;border-left:4px solid var(--salvia);border-radius:0 14px 14px 0;background:var(--crema-2);font:italic 500 1.2rem/1.45 var(--serif)}
+.aviso-vacio{padding:.8em 1em;border-radius:14px;background:var(--crema-2);color:var(--tinta-s);font-size:.9rem}
+.nav-lect{display:flex;justify-content:space-between;gap:10px;margin:24px 0 8px}
+.btn-sec{display:inline-flex;align-items:center;padding:.5em 1.1em;border:1.5px solid var(--salvia);border-radius:999px;color:var(--salvia-os);font:700 .85rem var(--sans);text-decoration:none;background:transparent;cursor:pointer}
+.btn-sec:hover{background:var(--salvia);color:#fff}
+.btn-descarga::after{content:"↓"}
+.descargas{margin-top:22px;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.descargas h3{margin:0 0 4px;font:600 1.3rem/1.2 var(--serif)}
+.anteriores{margin-top:30px}
+.anteriores h3{margin:0 0 10px;font:600 1.4rem/1.2 var(--serif)}
+
+/* listas */
+.lista{display:flex;flex-direction:column;gap:12px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 14px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:.45em 1em;border:1.5px solid var(--salvia);border-radius:999px;background:transparent;color:var(--salvia-os);font:700 .8rem var(--sans);cursor:pointer}
+.chip.activa{background:var(--salvia);color:#fff}
+.item-art{display:grid;grid-template-columns:100px 1fr;gap:12px;padding:10px;border-radius:18px;background:#fff;box-shadow:0 4px 14px rgba(80,60,40,.08);color:inherit;text-decoration:none}
+.item-img{display:block;border-radius:12px;overflow:hidden;min-height:100px;background:linear-gradient(160deg,#F1D9D2,#D9E0D2)}
+.item-img img{display:block;width:100%;height:100%;object-fit:cover}
+.item-cuerpo{display:block;min-width:0}
+.item-art h3{margin:.3em 0 .2em;font:600 1.25rem/1.15 var(--serif)}
+.item-art .resumen{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:.85rem}
+.item-art .fecha{display:block}
+.item-dev{display:flex;flex-direction:column;gap:2px;padding:.75em 1em;border-radius:14px;background:var(--lila);color:var(--tinta);text-decoration:none;font-weight:600}
+.item-dev .fecha{margin:0;font-weight:400}
+
+/* recursos */
+.recurso{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:linear-gradient(135deg,#F6E7E3,#F4EDE6)}
+.recurso-ico{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:var(--rosa);color:var(--rosa-t)}
+.recurso-cuerpo h3{margin:.1em 0 .2em;font:600 1.25rem/1.15 var(--serif)}
+.recurso-cuerpo p{margin:0 0 .4em;font-size:.88rem;color:var(--tinta-s)}
+
+/* contacto */
+.btn-leer.grande{padding:.7em 1.4em;font-size:.92rem}
+.mail-txt{margin:.6em 0 0;font-size:.85rem;color:var(--tinta-s)}
+.oracion{margin-top:28px;padding:16px;border-radius:20px;background:linear-gradient(135deg,#ECE6F1,#F1ECF3)}
+.oracion h3{margin:0 0 .2em;font:600 1.45rem/1.15 var(--serif)}
+.oracion p{margin:0 0 .4em;font-size:.9rem;color:var(--tinta-s)}
+.form label{display:block;margin:12px 0 4px;font-weight:700;font-size:.85rem}
+.form input,.form textarea{width:100%;padding:.7em .9em;border:1.5px solid #D9D2C6;border-radius:14px;background:#fff;font:inherit;color:var(--tinta)}
+.form textarea{resize:vertical}
+.acciones{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.acciones .btn-leer{margin:0}
+.nota{margin:10px 0 0;font-size:.78rem;color:var(--tinta-s)}
