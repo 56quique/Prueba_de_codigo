@@ -1,0 +1,22 @@
+{
+  "nombreApp": "Mujeres de Acción",
+  "logo": {
+    "imagen": "",
+    "linea1": "Mujeres",
+    "linea2": "de Acción"
+  },
+  "hero": {
+    "imagen": "img/hero.webp",
+    "frasePrincipal": "“Fuiste creada con un valor que nadie puede quitarte y un propósito que merece ser descubierto.”",
+    "fraseSecundaria": "Bienvenida a este espacio donde la fe, la vida y tus sueños se encuentran."
+  },
+  "categorias": [
+    { "nombre": "Artículos", "imagen": "img/categorias/articulos.webp", "href": "articulos.html", "color": "verde", "pronto": true },
+    { "nombre": "Recursos para descargar", "imagen": "img/categorias/recursos.webp", "href": "recursos.html", "color": "rosa", "pronto": true },
+    { "nombre": "Contacto", "imagen": "img/categorias/contacto.webp", "href": "contacto.html", "color": "salvia", "pronto": true },
+    { "nombre": "Más", "imagen": "img/categorias/mas.webp", "href": "articulos.html", "color": "lila", "pronto": true }
+  ],
+  "pie": {
+    "texto": "Mujeres de Acción. Todos los derechos reservados."
+  }
+}
