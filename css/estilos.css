@@ -113,3 +113,17 @@ img{max-width:100%}
   .reveal{opacity:1;transform:none;transition:none}
   .carrusel{scroll-behavior:auto} #toast,.btn-leer::after{transition:none}
 }
+
+/* ---------- Etapa 2: avisos "Nuevo" e instalación ---------- */
+.fila-etiqueta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nuevo{padding:.15em .65em;border-radius:999px;background:#A4524F;color:#fff;font-size:.68rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;animation:latido 2.4s ease-in-out infinite}
+.nuevo[hidden],.cat-num[hidden]{display:none}
+@keyframes latido{0%,100%{box-shadow:0 0 0 0 rgba(164,82,79,.45)}50%{box-shadow:0 0 0 6px rgba(164,82,79,0)}}
+.cat{position:relative}
+.cat-num{position:absolute;top:8px;right:8px;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#A4524F;color:#fff;font:800 .72rem/22px var(--sans);text-align:center}
+#instalar:empty{display:none}
+.instalar{display:flex;align-items:center;gap:10px;padding:10px 8px 10px 16px;margin-bottom:14px;border-radius:18px;background:var(--salvia-cl);font-size:.85rem;color:var(--salvia-os)}
+.instalar p{margin:0;flex:1}
+.instalar .btn-leer{margin:0;white-space:nowrap}
+.instalar .cerrar{background:none;border:0;font-size:1.5rem;line-height:1;color:var(--salvia-os);cursor:pointer;padding:2px 8px}
+@media (prefers-reduced-motion:reduce){.nuevo{animation:none}}
