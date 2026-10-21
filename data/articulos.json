@@ -1,11 +1,23 @@
 [
   {
+    "id": "las-emociones-no-me-controlan",
+    "titulo": "Las emociones no me controlan",
+    "categoria": "Mi mundo interior",
+    "resumen": "Las emociones pueden jugarme una mala pasada, porque: nublan la decisión lllllllllnn mmm",
+    "fecha": "2026-10-21",
+    "parrafos": [
+      "Las emociones pueden jugarme una mala pasada, porque: nublan la decisión lllllllllnn mmm"
+    ],
+    "versiculo": "Juan 3:16",
+    "imagen": "img/articulos/las-emociones-no-me-controlan.webp",
+    "destacado": true
+  },
+  {
     "id": "amor-verdadero",
     "titulo": "Amor verdadero",
     "categoria": "Mi mundo interior",
     "resumen": "Existe el amor verdadero y tiene que ver con el único que te ama de verdad",
     "fecha": "2026-10-21",
-    "destacado": true,
     "parrafos": [
       "Dios está muy interesado en vos",
       "> Juan 3:16 Porque de tal manera amó Dios al mundo que ha dado a su hijo unigenito"
