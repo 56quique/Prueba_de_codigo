@@ -61,6 +61,7 @@
         (a.categoria?'<div class="fila-etiqueta"><span class="etiqueta">'+esc(a.categoria)+'</span></div>':'')+
         '<h2>'+esc(a.titulo)+'</h2>'+
         (fechaTxt(a.fecha)?'<p class="meta">'+esc(fechaTxt(a.fecha))+'</p>':'')+
+        (a.versiculo?'<blockquote class="cita versiculo">'+C.conSaltos(a.versiculo)+'</blockquote>':'')+
         '<div class="cuerpo">'+(texto.length?C.bloques(texto):'<p>'+esc(a.resumen||'')+'</p><p class="aviso-vacio">El texto completo de este artículo todavía no está cargado.</p>')+'</div>'+
         (desc.length?'<div class="descargas"><h3>Para descargar</h3>'+desc.map(function(d){
           return '<a class="btn-leer btn-descarga" href="'+esc(d.archivo)+'" download target="_blank" rel="noopener">'+esc(d.titulo||'Descargar')+'</a>';

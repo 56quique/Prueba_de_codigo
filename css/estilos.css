@@ -211,3 +211,55 @@ img{max-width:100%}
 .acciones{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
 .acciones .btn-leer{margin:0}
 .nota{margin:10px 0 0;font-size:.78rem;color:var(--tinta-s)}
+
+/* ---------- Etapa 4: editor "Editoras" ---------- */
+.ed-barra{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.ed-barra h2,.ed-titulo{margin:0;font:600 1.5rem/1.1 var(--serif)}
+.ed-titulo{margin-bottom:8px}
+.ed-sub{margin:22px 0 8px;font:600 1.25rem/1.2 var(--serif)}
+.ed-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;border-radius:16px;background:#fff;box-shadow:0 3px 12px rgba(80,60,40,.08)}
+.ed-item.ed-err{background:var(--rosa)}
+.ed-item-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ed-item-txt strong{font-size:.95rem;line-height:1.25;overflow-wrap:anywhere}
+.ed-item-txt span:not(.etiqueta){font-size:.78rem;color:var(--tinta-s)}
+.ed-item-acc{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;flex:none}
+.peq{padding:.35em .85em;font-size:.78rem}
+.peligro{border-color:#A4524F;color:#A4524F}
+.peligro:hover{background:#A4524F;color:#fff}
+.enlace{background:none;border:0;padding:.5em .3em;color:var(--salvia-os);font:700 .85rem var(--sans);text-decoration:underline;cursor:pointer}
+.ed-form select{width:100%;padding:.7em .9em;border:1.5px solid #D9D2C6;border-radius:14px;background:#fff;font:inherit;color:var(--tinta)}
+.chk{display:flex!important;align-items:center;gap:10px}
+.chk input{width:auto!important;margin:0}
+.ed-img img{display:block;width:100%;max-height:220px;object-fit:cover;border-radius:14px;margin-bottom:8px}
+.blq{margin-bottom:10px;padding:10px;border-radius:14px;background:var(--crema-2)}
+.blq-cab{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.blq-tipo{font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--salvia-os)}
+.blq-acc{display:flex;gap:4px}
+.blq-acc button,.ed-desc button{width:32px;height:32px;border:0;border-radius:50%;background:#fff;color:var(--tinta-s);font-size:.95rem;cursor:pointer}
+.ed-desc{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 6px 6px 12px;margin-bottom:6px;border-radius:12px;background:var(--crema-2);font-size:.88rem}
+.ed-desc-add{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.ed-final{margin-top:20px;align-items:center}
+.ed-msg{font-weight:600}
+.ed-msg.error{color:#A4524F}
+.ayuda{margin:0 0 6px;font-size:.88rem}
+.ayuda summary{cursor:pointer;font-weight:700;color:var(--salvia-os)}
+.ayuda ol{padding-left:1.2em;margin:.6em 0}
+.ayuda code,.intro code{padding:.1em .4em;border-radius:6px;background:var(--crema-2);font-size:.85em}
+.ejemplo{margin:.6em 0;padding:.8em;border-radius:12px;background:var(--crema-2);font:.8rem/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap}
+.vista{position:fixed;inset:0;z-index:30;background:var(--crema);overflow-y:auto}
+.vista-barra{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:var(--salvia-cl);font-size:.85rem;font-weight:700;color:var(--salvia-os)}
+.vista .pagina{max-width:560px;margin:0 auto}
+
+/* ---------- Editor simplificado ---------- */
+.ed-herr{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.ed-herr .nota{margin:0}
+.ed-form textarea{line-height:1.55}
+.ed-fecha{margin:16px 0 0;font-size:.9rem;color:var(--tinta-s)}
+.ed-final{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.ed-final .btn-sec{justify-content:center;padding:.7em .5em}
+.ed-final .ancho,.ed-final .enlace{grid-column:1/-1}
+.btn-leer.ancho{width:100%;justify-content:center}
+.ed-final .btn-leer{padding:.8em 1em;font-size:.95rem}
+.ed-avanzado{margin-top:72px;padding-top:16px;border-top:1px solid rgba(80,60,40,.15)}
+.ed-avanzado .peligro{margin-top:6px}
+.cuerpo .cita.versiculo,.lectura>.cita{margin:1em 0 .2em}
