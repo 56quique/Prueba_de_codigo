@@ -4,7 +4,7 @@
   var N=window.Novedades, D=window.Devocional, C=window.Comun, esc=C.esc, get=C.get, aviso=C.aviso;
   var estado={arts:[],dev:null,fecha:null,t:0,primera:true};
   /* Páginas que ya existen: aunque config.json marque "pronto", se abren normalmente. */
-  var PAGINAS=/^(articulos|recursos|contacto|devocional|testimonio)\.html/;
+  var PAGINAS=/^(articulos|recursos|contacto|devocional|testimonio|editoras)\.html/;
 
   /* ---------- Logo (texto editable o imagen) ---------- */
   function logo(l){
