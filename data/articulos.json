@@ -1,17 +1,5 @@
 [
   {
-    "id": "amor-verdadero",
-    "titulo": "Amor verdadero",
-    "categoria": "Mi mundo interior",
-    "resumen": "Existe el amor verdadero y tiene que ver con el único que te ama de verdad",
-    "fecha": "2026-10-21",
-    "parrafos": [
-      "Dios está muy interesado en vos",
-      "> Juan 3:16 Porque de tal manera amó Dios al mundo que ha dado a su hijo unigenito"
-    ],
-    "imagen": "img/articulos/amor-verdadero.webp"
-  },
-  {
     "id": "ansiedad-sin-avisar",
     "titulo": "Cuando la ansiedad llega sin avisar",
     "categoria": "Mi mundo interior",
