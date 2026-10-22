@@ -1,5 +1,33 @@
 [
   {
+    "id": "no-tengo-que-seguir-siendo-la-misma",
+    "titulo": "No tengo que seguir siendo la misma",
+    "categoria": "Mi mundo interior",
+    "resumen": "¿Alguna vez sentiste que volvías a reaccionar de la misma manera, aunque te habías prometido que esta vez sería diferente? Tal vez respondiste con enojo, te dejaste…",
+    "fecha": "2026-10-21",
+    "parrafos": [
+      "¿Alguna vez sentiste que volvías a reaccionar de la misma manera, aunque te habías prometido que esta vez sería diferente? Tal vez respondiste con enojo, te dejaste vencer por el temor, pensaste que no eras suficiente o volviste a cerrarte por miedo a que te lastimaran.",
+      "A veces reconocemos lo que nos sucede, comprendemos de dónde vienen ciertas reacciones y, aun así, nos cuesta cambiarlas. Esto puede desanimarnos y hacernos pensar que nunca vamos a poder vivir de otra manera.",
+      "Pero reconocer una dificultad no significa que estemos condenadas a repetirla para siempre.",
+      "Nuestras experiencias influyen en nuestra manera de pensar, sentir y actuar. Sin embargo, podemos aprender a revisar nuestros pensamientos, reconocer aquello que no nos hace bien y elegir respuestas diferentes. No se trata de negar nuestra historia ni de fingir que nada nos duele, sino de dejar de permitir que nuestras experiencias pasadas dirijan todas nuestras decisiones presentes.",
+      "La transformación del corazón no consiste solamente en esforzarnos por parecer mejores delante de los demás. Es un proceso en el que aprendemos a mirar nuestra vida a la luz de la Palabra de Dios, a reconocer lo que necesitamos cambiar y a caminar en obediencia a su verdad.",
+      "Por ejemplo, quizás durante mucho tiempo pensaste que debías agradar a todos para ser amada. Pero al conocer lo que Dios enseña, podés comenzar a comprender que tu valor no depende de la aprobación de las personas. Tal vez acostumbrabas responder con dureza cuando te sentías herida; ahora podés aprender a detenerte, pensar y responder con dominio propio.",
+      "Estos cambios no siempre suceden de un día para otro. Requieren perseverancia, oración y decisiones cotidianas. Habrá momentos en los que necesitemos volver a intentarlo, pedir perdón o reconocer que todavía tenemos algo que aprender.",
+      "Lo importante es no confundir el proceso con el fracaso. Cada vez que reconocemos una actitud, buscamos la dirección de Dios y elegimos actuar conforme a su Palabra, estamos dando un paso hacia una vida diferente.",
+      "Romanos 12:2 — Dios Habla Hoy (DHH)",
+      "En este pasaje, Pablo enseña que no debemos amoldarnos a los criterios de este mundo, sino permitir que Dios transforme nuestra manera de pensar. Esa renovación nos ayuda a comprender y discernir cuál es su voluntad.",
+      "La transformación comienza también en nuestra manera de interpretar la vida, de tomar decisiones y de responder a lo que nos sucede. La Palabra de Dios nos muestra una dirección diferente y nos enseña a vivir conforme a ella.",
+      "Querida mujer, no sos solamente aquello que viviste, los errores que cometiste o las reacciones que todavía te cuesta cambiar. Podés reconocer tu historia sin quedarte atada a ella. En Dios encontramos dirección para aprender, corregir nuestro camino y crecer. No necesitás resolver todo hoy; necesitás estar dispuesta a dar el próximo paso con fe, sinceridad y perseverancia.",
+      "Elegí una reacción o un pensamiento que quieras comenzar a trabajar esta semana.",
+      "- Reconocelo: ¿qué suelo pensar o hacer cuando me siento herida, insegura o enojada?\n- Examinálo: ¿ese pensamiento está de acuerdo con la verdad de la Palabra de Dios?\n- Elegí un paso diferente: ¿cómo puedo responder la próxima vez de una manera que refleje el amor, la sabiduría y el dominio propio?",
+      "Anotá tu decisión y, cuando tengas la oportunidad de ponerla en práctica, hacelo paso a paso. Si volvés a equivocarte, reconocelo, aprendé y seguí adelante.",
+      "Oración: Padre, quiero que transformes mi manera de pensar y de vivir. Ayudame a reconocer aquello que necesito cambiar y dame sabiduría para responder conforme a tu Palabra. Enseñame a perseverar, aun cuando el proceso sea difícil, y a confiar en tu dirección cada día. Que mi vida refleje cada vez más tu voluntad. En el nombre de Jesús. Amén."
+    ],
+    "versiculo": "Romanos 12:2",
+    "imagen": "img/articulos/no-tengo-que-seguir-siendo-la-misma.webp",
+    "destacado": true
+  },
+  {
     "id": "lo-que-hay-en-mi-corazon-tambien-importa",
     "titulo": "Lo que hay en mi corazón también importa",
     "categoria": "Mi mundo interior",
@@ -22,8 +50,7 @@
       "Oración: Señor, ayudame a examinar mi corazón con honestidad. Mostrame las actitudes y los pensamientos que necesito corregir. Enseñame a no reaccionar solamente desde mis heridas, sino a responder con sabiduría, amor y dominio propio. Que tu Palabra guíe mi vida y transforme mi interior. En el nombre de Jesús. Amén."
     ],
     "versiculo": "Proverbios 4:23",
-    "imagen": "img/articulos/lo-que-hay-en-mi-corazon-tambien-importa.webp",
-    "destacado": true
+    "imagen": "img/articulos/lo-que-hay-en-mi-corazon-tambien-importa.webp"
   },
   {
     "id": "que-esta-pasando-dentro-de-mi",
