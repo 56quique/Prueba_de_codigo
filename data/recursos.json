@@ -1,8 +1,20 @@
 [
   {
-    "titulo": "Recurso de ejemplo",
-    "descripcion": "Reemplazá este ejemplo por tus PDF: guías de oración, planners, devocionales descargables.",
-    "archivo": "pdf/recurso-ejemplo.pdf",
+    "titulo": "Vida saludable y coherente",
+    "descripcion": "Una vida verdaderamente fundada en lo que Dios quiere.",
+    "archivo": "pdf/Vida-saludabel-y-coherente.pdf",
+    "tipo": "PDF"
+  },
+  {
+    "titulo": "Mi valor no depende de la opinion de los demas",
+    "descripcion": "Tu vida tiene el valor que Dios le asigno.",
+    "archivo": "pdf/Mi-vida-no-depende-de-la-opinion-de-los-demas.pdf",
+    "tipo": "PDF"
+  },
+  {
+    "titulo": "Familia edificada sobre la roca",
+    "descripcion": "Tu familia como Dios siempre quiso que sea.",
+    "archivo": "pdf/Familia-edificada-sobre-la-roca.pdf",
     "tipo": "PDF"
   }
 ]
