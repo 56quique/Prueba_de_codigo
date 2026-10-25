@@ -68,10 +68,27 @@
     return {dev:nDev,art:nArt};
   }
 
+  /* Aviso cuando la app descargó una versión nueva de sí misma. */
+  function avisoNueva(){
+    if($('#aviso-nueva')) return;
+    var d=document.createElement('div'); d.id='aviso-nueva'; d.setAttribute('role','status');
+    d.style.cssText='position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));max-width:536px;margin:0 auto;z-index:75;display:flex;align-items:center;gap:10px;padding:10px 12px 10px 16px;border-radius:16px;background:#4F6B58;color:#fff;font-size:.85rem;box-shadow:0 8px 24px rgba(0,0,0,.25)';
+    d.innerHTML='<span style="flex:1">Hay una versión nueva de la app.</span><button type="button" style="border:0;border-radius:999px;padding:.5em 1em;background:#fff;color:#4F6B58;font:700 .8rem sans-serif;cursor:pointer">Actualizar</button>';
+    d.querySelector('button').addEventListener('click',function(){location.reload();});
+    document.body.appendChild(d);
+  }
   function registrarSW(){
-    if('serviceWorker' in navigator){
-      window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
-    }
+    if(!('serviceWorker' in navigator)) return;
+    var teniaControl=!!navigator.serviceWorker.controller;   /* si ya había una versión instalada, un cambio de control es una actualización */
+    navigator.serviceWorker.addEventListener('controllerchange',function(){ if(teniaControl) avisoNueva(); });
+    window.addEventListener('load',function(){
+      navigator.serviceWorker.register('sw.js').then(function(reg){
+        /* Cada vez que se vuelve a la app, se busca si hay una versión nueva. */
+        document.addEventListener('visibilitychange',function(){
+          if(document.visibilityState==='visible'){ try{reg.update().catch(function(){});}catch(e){} }
+        });
+      }).catch(function(){});
+    });
   }
 
   var TAB_DE={articulos:'articulos',articulo:'articulos',devocional:'devocional',testimonio:'inicio',recursos:'recursos',contacto:'contacto',inicio:'inicio',editoras:''};

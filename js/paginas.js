@@ -116,17 +116,127 @@
     }).catch(sinDatos);
   }
 
-  /* ---------- Recursos ---------- */
+  /* ---------- Recursos (con vista previa de PDF) ---------- */
+  var pdfLib=null;
+  /* El visor (PDF.js) se descarga recién cuando alguien toca "Vista previa". */
+  function cargarPdfJs(){
+    if(window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+    if(pdfLib) return pdfLib;
+    var importar=new Function('u','return import(u)');   /* así un navegador muy viejo no rompe el resto de la página */
+    pdfLib=importar(new URL('js/vendor/pdf.esm.min.js',document.baseURI).href).then(function(m){
+      m.GlobalWorkerOptions.workerSrc=new URL('js/vendor/pdf.worker.esm.min.js',document.baseURI).href;
+      window.pdfjsLib=m; return m;
+    }).catch(function(er){pdfLib=null;throw er;});
+    return pdfLib;
+  }
+
+  function abrirVistaPdf(item){
+    var url=new URL(item.archivo,document.baseURI).href;
+    var nombre=item.archivo.split('?')[0].split('/').pop()||'documento.pdf';
+    try{nombre=decodeURIComponent(nombre);}catch(x){}
+    var e={doc:null,total:0,pag:1,tarea:null,blob:null,cerrado:false};
+    var cuerpoPrev=document.body.style.overflow, toast=document.getElementById('toast'), zPrev=toast?toast.style.zIndex:'';
+    var o=document.createElement('div');
+    o.className='pdf-vista'; o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true'); o.setAttribute('aria-label','Vista previa de '+item.titulo);
+    o.style.cssText='position:fixed;top:0;right:0;bottom:0;left:0;z-index:70;display:flex;flex-direction:column;background:#FBF7F1';
+    o.innerHTML=
+      '<div style="padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:#DCE5D8;color:#4F6B58;font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(item.titulo)+'</div>'+
+      '<div class="pdf-cuerpo" style="flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px;background:#EFE8DE">'+
+        '<p class="pdf-msg" style="text-align:center;color:#6B6F75;margin:30px 10px">Cargando vista previa…</p>'+
+        '<canvas class="pdf-lienzo" style="display:none;width:100%;height:auto;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.15);border-radius:4px"></canvas>'+
+      '</div>'+
+      '<div style="padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#FBF7F1;border-top:1px solid rgba(80,60,40,.12)">'+
+        '<div class="pdf-pag" style="display:none;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px">'+
+          '<button type="button" class="btn-sec peq" data-pdf="ant">‹ Anterior</button><span class="pdf-num" style="font-size:.85rem;color:#6B6F75"></span><button type="button" class="btn-sec peq" data-pdf="sig">Siguiente ›</button></div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+          '<a class="btn-leer btn-descarga" href="'+esc(item.archivo)+'" download target="_blank" rel="noopener" style="justify-content:center">Descargar</a>'+
+          '<button type="button" class="btn-sec" data-pdf="compartir" style="justify-content:center">Compartir</button>'+
+          '<button type="button" class="btn-sec" data-pdf="cerrar" style="justify-content:center;grid-column:1/-1">Cerrar vista previa</button>'+
+        '</div></div>';
+    document.body.appendChild(o);
+    document.body.style.overflow='hidden'; if(toast) toast.style.zIndex='80';
+    try{history.pushState({mdaPdf:1},'');}catch(x){}   /* así el botón "atrás" del celular cierra la vista previa */
+
+    function quitar(){
+      if(e.cerrado) return; e.cerrado=true;
+      if(e.tarea){try{e.tarea.cancel();}catch(x){}}
+      if(e.doc){try{e.doc.destroy();}catch(x){}}
+      window.removeEventListener('popstate',quitar); document.removeEventListener('keydown',tecla);
+      document.body.style.overflow=cuerpoPrev; if(toast) toast.style.zIndex=zPrev;
+      o.remove();
+    }
+    function cerrar(){ if(history.state&&history.state.mdaPdf) history.back(); else quitar(); }
+    function tecla(ev){ if(ev.key==='Escape') cerrar(); }
+    window.addEventListener('popstate',quitar); document.addEventListener('keydown',tecla);
+
+    function q(s){return o.querySelector(s);}
+    function msg(t){var m=q('.pdf-msg'); m.textContent=t; m.style.display=t?'block':'none';}
+    function pager(){
+      var p=q('.pdf-pag'); if(e.total<2){p.style.display='none';return;}
+      p.style.display='flex'; q('.pdf-num').textContent='Página '+e.pag+' de '+e.total;
+      var a=q('[data-pdf="ant"]'), s=q('[data-pdf="sig"]');
+      a.disabled=e.pag<=1; s.disabled=e.pag>=e.total; a.style.opacity=a.disabled?.4:1; s.style.opacity=s.disabled?.4:1;
+    }
+    function pintar(n){
+      e.pag=n;
+      if(e.tarea){try{e.tarea.cancel();}catch(x){}}
+      e.doc.getPage(n).then(function(pg){
+        var cuerpo=q('.pdf-cuerpo'), ancho=Math.max(200,cuerpo.clientWidth-24);
+        var v1=pg.getViewport({scale:1}), dpr=Math.min(window.devicePixelRatio||1,3);
+        var vp=pg.getViewport({scale:(ancho/v1.width)*dpr});
+        var cv=q('.pdf-lienzo'); cv.width=Math.floor(vp.width); cv.height=Math.floor(vp.height);
+        e.tarea=pg.render({canvasContext:cv.getContext('2d'),canvas:cv,viewport:vp});
+        return e.tarea.promise.then(function(){ cv.style.display='block'; msg(''); cuerpo.scrollTop=0; pager(); });
+      }).catch(function(er){
+        if(er&&er.name==='RenderingCancelledException') return;
+        if(!e.cerrado) msg('No se pudo mostrar la vista previa. Podés descargar el archivo igual.');
+      });
+    }
+    function copiarEnlace(){
+      if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function(){C.aviso('Enlace copiado.');},function(){C.aviso('No se pudo compartir.');});
+      else C.aviso('No se pudo compartir.');
+    }
+    /* Se comparte el archivo PDF; si el celular no puede, el enlace; y si tampoco, se copia el enlace. */
+    function compartir(){
+      var f=null;
+      try{ if(e.blob&&window.File) f=new File([e.blob],nombre,{type:'application/pdf'}); }catch(x){}
+      if(navigator.share){
+        var datos=(f&&navigator.canShare&&navigator.canShare({files:[f]}))?{files:[f],title:item.titulo}:{title:item.titulo,url:url};
+        navigator.share(datos).catch(function(er){ if(!er||er.name!=='AbortError') copiarEnlace(); });
+      } else copiarEnlace();
+    }
+    o.addEventListener('click',function(ev){
+      var b=ev.target.closest('[data-pdf]'); if(!b) return;
+      var a=b.getAttribute('data-pdf');
+      if(a==='cerrar') cerrar();
+      else if(a==='compartir') compartir();
+      else if(a==='ant'&&e.doc&&e.pag>1) pintar(e.pag-1);
+      else if(a==='sig'&&e.doc&&e.pag<e.total) pintar(e.pag+1);
+    });
+
+    /* Se baja el archivo una sola vez: sirve para dibujar la vista previa y para compartirlo. */
+    Promise.all([cargarPdfJs(),fetch(url).then(function(r){if(!r.ok) throw new Error('archivo');return r.arrayBuffer();})]).then(function(r){
+      e.blob=new Blob([r[1]],{type:'application/pdf'});
+      return r[0].getDocument({data:new Uint8Array(r[1].slice(0)),isEvalSupported:false,enableXfa:false}).promise;
+    }).then(function(doc){
+      if(e.cerrado){try{doc.destroy();}catch(x){} return;}
+      e.doc=doc; e.total=doc.numPages; pintar(1);
+    }).catch(function(){ if(!e.cerrado) msg('No se pudo mostrar la vista previa. Podés descargar el archivo igual.'); });
+  }
+
   function pRecursos(){
     C.get('data/recursos.json').then(function(items){
-      items=Array.isArray(items)?items:[];
+      items=(Array.isArray(items)?items:[]).filter(function(x){return x&&x.archivo;});
       if(!items.length) return vacio('Todavía no hay recursos para descargar.');
-      cont.innerHTML='<p class="intro">Materiales para descargar y guardar en tu celular.</p><div class="lista">'+items.map(function(x){
+      cont.innerHTML='<p class="intro">Materiales para ver, descargar y compartir.</p><div class="lista">'+items.map(function(x,i){
         return '<div class="recurso">'+
           '<span class="recurso-ico" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h7"/></svg></span>'+
           '<div class="recurso-cuerpo"><h3>'+esc(x.titulo)+'</h3>'+(x.descripcion?'<p>'+esc(x.descripcion)+'</p>':'')+
-          '<a class="btn-leer btn-descarga" href="'+esc(x.archivo)+'" download target="_blank" rel="noopener">Descargar'+(x.tipo?' '+esc(x.tipo):'')+'</a></div></div>';
+          '<button type="button" class="btn-leer" data-vista="'+i+'">Vista previa</button></div></div>';
       }).join('')+'</div>';
+      cont.addEventListener('click',function(ev){
+        var b=ev.target.closest('[data-vista]'); if(b) abrirVistaPdf(items[+b.getAttribute('data-vista')]);
+      });
     }).catch(sinDatos);
   }
 
