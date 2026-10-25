@@ -3,7 +3,7 @@
    - Datos (.json) y páginas: primero la red (así aparece el contenido nuevo); sin conexión, la copia guardada.
    - Tipografías de Google: se guardan la primera vez para funcionar sin internet.
    Si agregás archivos nuevos a PRECARGA o querés forzar una limpieza, subí el número de VERSION. */
-const VERSION = 'mda-v9';
+const VERSION = 'mda-v10';
 const PRECARGA = [
   './', 'index.html', 'manifest.json',
   'articulos.html', 'articulo.html', 'devocional.html', 'testimonio.html', 'recursos.html', 'contacto.html', 'editoras.html',
