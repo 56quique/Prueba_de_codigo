@@ -240,6 +240,108 @@
     }).catch(sinDatos);
   }
 
+  /* ---------- Más: galería de imágenes ---------- */
+  function abrirVistaImagen(lista,inicio){
+    var e={i:inicio,cerrado:false,blob:null};
+    var cuerpoPrev=document.body.style.overflow, toast=document.getElementById('toast'), zPrev=toast?toast.style.zIndex:'';
+    var o=document.createElement('div');
+    o.className='img-vista'; o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true');
+    o.style.cssText='position:fixed;top:0;right:0;bottom:0;left:0;z-index:70;display:flex;flex-direction:column;background:#FBF7F1';
+    o.innerHTML=
+      '<div style="padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:#DCE5D8;color:#4F6B58;overflow:hidden">'+
+        '<div class="img-titulo" style="font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>'+
+        '<div class="img-cuenta" style="font-size:.75rem;opacity:.85"></div></div>'+
+      '<div class="img-cuerpo" style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:10px;background:#EFE8DE;overflow:hidden">'+
+        '<p class="img-msg" style="color:#6B6F75;margin:0">Cargando…</p>'+
+        '<img class="img-grande" alt="" style="display:none;max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.15)">'+
+      '</div>'+
+      '<div style="padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#FBF7F1;border-top:1px solid rgba(80,60,40,.12)">'+
+        '<div class="img-pag" style="display:none;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px">'+
+          '<button type="button" class="btn-sec peq" data-im="ant">‹ Anterior</button><span style="font-size:.8rem;color:#6B6F75">También podés deslizar</span><button type="button" class="btn-sec peq" data-im="sig">Siguiente ›</button></div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+          '<a class="btn-leer btn-descarga" href="#" download target="_blank" rel="noopener" style="justify-content:center">Descargar</a>'+
+          '<button type="button" class="btn-sec" data-im="compartir" style="justify-content:center">Compartir</button>'+
+          '<button type="button" class="btn-sec" data-im="cerrar" style="justify-content:center;grid-column:1/-1">Cerrar vista previa</button>'+
+        '</div></div>';
+    document.body.appendChild(o);
+    document.body.style.overflow='hidden'; if(toast) toast.style.zIndex='80';
+    try{history.pushState({mdaVista:1},'');}catch(x){}   /* el botón "atrás" del celular cierra la vista previa */
+
+    function quitar(){
+      if(e.cerrado) return; e.cerrado=true;
+      window.removeEventListener('popstate',quitar); document.removeEventListener('keydown',tecla);
+      document.body.style.overflow=cuerpoPrev; if(toast) toast.style.zIndex=zPrev;
+      o.remove();
+    }
+    function cerrar(){ if(history.state&&history.state.mdaVista) history.back(); else quitar(); }
+    function tecla(ev){ if(ev.key==='Escape') cerrar(); else if(ev.key==='ArrowLeft') ir(-1); else if(ev.key==='ArrowRight') ir(1); }
+    window.addEventListener('popstate',quitar); document.addEventListener('keydown',tecla);
+
+    function q(s){return o.querySelector(s);}
+    function nombreDe(r){var n=String(r).split('?')[0].split('/').pop()||'imagen'; try{n=decodeURIComponent(n);}catch(x){} return n;}
+    function tipoDe(n){return /\.png$/i.test(n)?'image/png':(/\.jpe?g$/i.test(n)?'image/jpeg':'image/webp');}
+    function mostrar(i){
+      e.i=i; e.blob=null; var it=lista[i];
+      q('.img-titulo').textContent=it.titulo||''; q('.img-cuenta').textContent=lista.length>1?((i+1)+' de '+lista.length):'';
+      var im=q('.img-grande'), m=q('.img-msg'); im.style.display='none'; m.style.display='block'; m.textContent='Cargando…';
+      im.onload=function(){ if(e.cerrado) return; m.style.display='none'; im.style.display='block'; };
+      im.onerror=function(){ m.textContent='No se pudo cargar la imagen. Podés intentar descargarla.'; };
+      im.alt=it.titulo||''; im.src=it.imagen;
+      var dl=q('a[download]'); dl.href=it.imagen; dl.setAttribute('download',nombreDe(it.imagen));
+      var pg=q('.img-pag'); pg.style.display=lista.length>1?'flex':'none';
+      var ba=q('[data-im="ant"]'), bs=q('[data-im="sig"]');
+      ba.disabled=i<=0; bs.disabled=i>=lista.length-1; ba.style.opacity=ba.disabled?.4:1; bs.style.opacity=bs.disabled?.4:1;
+      /* Se baja el archivo por adelantado para poder compartirlo en el momento en que se toca el botón. */
+      fetch(it.imagen).then(function(r){return r.ok?r.blob():null;}).then(function(b){ if(b&&e.i===i&&!e.cerrado) e.blob=b; }).catch(function(){});
+    }
+    function ir(d){ var n=e.i+d; if(n>=0&&n<lista.length) mostrar(n); }
+    function copiarEnlace(u){
+      if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(function(){C.aviso('Enlace copiado.');},function(){C.aviso('No se pudo compartir.');});
+      else C.aviso('No se pudo compartir.');
+    }
+    /* Se comparte la imagen; si el celular no puede, el enlace; y si tampoco, se copia el enlace. */
+    function compartir(){
+      var it=lista[e.i], u=new URL(it.imagen,document.baseURI).href, n=nombreDe(it.imagen), f=null;
+      try{ if(e.blob&&window.File) f=new File([e.blob],n,{type:e.blob.type||tipoDe(n)}); }catch(x){}
+      if(navigator.share){
+        var datos=(f&&navigator.canShare&&navigator.canShare({files:[f]}))?{files:[f],title:it.titulo||''}:{title:it.titulo||'',url:u};
+        navigator.share(datos).catch(function(er){ if(!er||er.name!=='AbortError') copiarEnlace(u); });
+      } else copiarEnlace(u);
+    }
+    o.addEventListener('click',function(ev){
+      var b=ev.target.closest('[data-im]'); if(!b) return;
+      var a=b.getAttribute('data-im');
+      if(a==='cerrar') cerrar(); else if(a==='compartir') compartir(); else if(a==='ant') ir(-1); else if(a==='sig') ir(1);
+    });
+    /* Deslizar hacia los costados para cambiar de imagen */
+    var x0=null, cu=q('.img-cuerpo');
+    cu.addEventListener('touchstart',function(ev){ x0=ev.touches.length===1?ev.touches[0].clientX:null; },{passive:true});
+    cu.addEventListener('touchend',function(ev){
+      if(x0===null) return; var dx=ev.changedTouches[0].clientX-x0; x0=null;
+      if(Math.abs(dx)>70) ir(dx<0?1:-1);
+    });
+    mostrar(inicio);
+  }
+
+  function pMas(){
+    fetch('data/mas.json',{cache:'no-cache'}).then(function(r){
+      if(r.status===404) return [];
+      if(!r.ok) throw new Error('mas');
+      return r.json();
+    }).then(function(items){
+      items=(Array.isArray(items)?items:[]).filter(function(x){return x&&x.imagen;});
+      if(!items.length) return vacio('Todavía no hay imágenes. ¡Pronto habrá más!');
+      cont.innerHTML='<p class="intro">Imágenes para ver, descargar y compartir.</p><div class="galeria">'+items.map(function(x,i){
+        return '<button type="button" class="gal-item" data-img="'+i+'" aria-label="Ver '+esc(x.titulo||'imagen')+'">'+
+          '<img src="'+esc(x.miniatura||x.imagen)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'+
+          '<span>'+esc(x.titulo||'')+'</span></button>';
+      }).join('')+'</div>';
+      cont.addEventListener('click',function(ev){
+        var b=ev.target.closest('[data-img]'); if(b) abrirVistaImagen(items,+b.getAttribute('data-img'));
+      });
+    }).catch(sinDatos);
+  }
+
   /* ---------- Contacto (por correo, sin servidor) ---------- */
   function pContacto(){
     C.get('data/contacto.json').then(function(c){
@@ -276,7 +378,7 @@
     }).catch(sinDatos);
   }
 
-  var rutas={articulos:pArticulos,articulo:pArticulo,devocional:pDevocional,testimonio:pTestimonio,recursos:pRecursos,contacto:pContacto};
+  var rutas={articulos:pArticulos,articulo:pArticulo,devocional:pDevocional,testimonio:pTestimonio,recursos:pRecursos,contacto:pContacto,mas:pMas};
   C.iniciarPagina(pagina);
   (rutas[pagina]||function(){})();
   base().then(function(b){C.avisos(b[0],b[1]);});

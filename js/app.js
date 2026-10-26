@@ -4,7 +4,7 @@
   var N=window.Novedades, D=window.Devocional, C=window.Comun, esc=C.esc, get=C.get, aviso=C.aviso;
   var estado={arts:[],dev:null,fecha:null,t:0,primera:true};
   /* Páginas que ya existen: aunque config.json marque "pronto", se abren normalmente. */
-  var PAGINAS=/^(articulos|recursos|contacto|devocional|testimonio|editoras)\.html/;
+  var PAGINAS=/^(articulos|recursos|contacto|devocional|testimonio|editoras|mas)\.html/;
 
   /* ---------- Logo (texto editable o imagen) ---------- */
   function logo(l){
@@ -56,9 +56,12 @@
   /* ---------- Carrusel ---------- */
   function carrusel(cats){
     $('#carrusel').innerHTML=(cats||[]).map(function(c){
-      var conNum=c.insignia==='articulos'||/^articulos\.html/.test(c.href||'');
-      var pronto=c.pronto&&!PAGINAS.test(c.href||'');
-      return '<a class="cat cat-'+esc(c.color||'verde')+(pronto?' pronto':'')+'" href="'+esc(c.href)+'">'+
+      var href=c.href||'';
+      /* La tarjeta "Más" tiene su propia pantalla (antes apuntaba a Artículos). */
+      if(String(c.nombre||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase()==='mas'&&/^articulos\.html/.test(href)) href='mas.html';
+      var conNum=c.insignia==='articulos'||/^articulos\.html/.test(href);
+      var pronto=c.pronto&&!PAGINAS.test(href);
+      return '<a class="cat cat-'+esc(c.color||'verde')+(pronto?' pronto':'')+'" href="'+esc(href)+'">'+
         '<span class="cat-img">'+img(c.imagen)+'</span>'+
         (conNum?'<span class="cat-num" data-num-art hidden></span>':'')+
         '<span class="cat-pie"><span>'+esc(c.nombre)+'</span><span aria-hidden="true">→</span></span></a>';

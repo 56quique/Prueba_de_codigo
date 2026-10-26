@@ -3,7 +3,7 @@
   'use strict';
   var C=window.Comun, D=window.Devocional, GH=window.GH;
   var esc=C.esc, cont=document.getElementById('contenido');
-  var S={cfg:null,cats:[],arts:[],devs:[],vista:'articulos'};
+  var S={cfg:null,cats:[],arts:[],devs:[],mas:[],vista:'articulos'};
   var ED=null, LOTE=[];
   var BKEY='mda_borradores_v1';
 
@@ -81,19 +81,20 @@
   function blobADataURL(blob){
     return new Promise(function(ok,no){var r=new FileReader();r.onload=function(){ok(r.result);};r.onerror=function(){no(new Error('No se pudo leer la imagen.'));};r.readAsDataURL(blob);});
   }
-  /* Reduce la foto (máx. 1400 px) y la pasa a WebP (o JPG si el celular no puede). */
-  function reducirImagen(file){
+  /* Reduce la foto (por defecto máx. 1400 px) y la pasa a WebP (o JPG si el celular no puede). */
+  function reducirImagen(file,max,calidad){
+    max=max||1400; calidad=calidad||.82;
     return new Promise(function(ok,no){
       var url=URL.createObjectURL(file), im=new Image();
       im.onload=function(){
-        var r=Math.min(1,1400/Math.max(im.width,im.height)), w=Math.round(im.width*r), h=Math.round(im.height*r);
+        var r=Math.min(1,max/Math.max(im.width,im.height)), w=Math.round(im.width*r), h=Math.round(im.height*r);
         var c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(im,0,0,w,h);
         URL.revokeObjectURL(url);
         function fin(b,ext){blobADataURL(b).then(function(d){ok({blob:b,ext:ext,dataURL:d});},no);}
         c.toBlob(function(b){
           if(b&&b.type==='image/webp') fin(b,'webp');
-          else c.toBlob(function(b2){fin(b2,'jpg');},'image/jpeg',.85);
-        },'image/webp',.82);
+          else c.toBlob(function(b2){fin(b2,'jpg');},'image/jpeg',Math.min(.95,calidad+.05));
+        },'image/webp',calidad);
       };
       im.onerror=function(){URL.revokeObjectURL(url);no(new Error('No se pudo leer la imagen. Probá con otra foto.'));};
       im.src=url;
@@ -199,8 +200,8 @@
   }
   function entrar(){
     cont.innerHTML='<p class="cargando">Cargando tus artículos…</p>';
-    return Promise.all([GH.leerJSON('data/articulos.json'),GH.leerJSON('data/devocionales.json')]).then(function(r){
-      S.arts=Array.isArray(r[0].datos)?r[0].datos:[]; S.devs=Array.isArray(r[1].datos)?r[1].datos:[];
+    return Promise.all([GH.leerJSON('data/articulos.json'),GH.leerJSON('data/devocionales.json'),GH.leerJSON('data/mas.json')]).then(function(r){
+      S.arts=Array.isArray(r[0].datos)?r[0].datos:[]; S.devs=Array.isArray(r[1].datos)?r[1].datos:[]; S.mas=Array.isArray(r[2].datos)?r[2].datos:[];
       panel();
     }).catch(function(er){
       cont.innerHTML='<div class="error-carga">'+esc(GH.mensajeError(er))+'</div><p><button type="button" class="btn-sec" data-acc="salir">Salir</button></p>';
@@ -213,9 +214,10 @@
     cont.innerHTML='<div class="ed-barra"><h2>Panel de editoras</h2><button type="button" class="btn-sec peq" data-acc="salir">Salir</button></div>'+
       '<div class="chips">'+
         '<button type="button" class="chip'+(S.vista==='articulos'?' activa':'')+'" data-acc="vista" data-v="articulos">Artículos</button>'+
-        '<button type="button" class="chip'+(S.vista==='devocionales'?' activa':'')+'" data-acc="vista" data-v="devocionales">Devocionales</button></div>'+
+        '<button type="button" class="chip'+(S.vista==='devocionales'?' activa':'')+'" data-acc="vista" data-v="devocionales">Devocionales</button>'+
+        '<button type="button" class="chip'+(S.vista==='mas'?' activa':'')+'" data-acc="vista" data-v="mas">Más</button></div>'+
       '<div id="ed-cuerpo"></div>';
-    if(S.vista==='articulos') listaArticulos(); else listaDevocionales();
+    if(S.vista==='articulos') listaArticulos(); else if(S.vista==='mas') listaMas(); else listaDevocionales();
   }
   function item(titulo,sub,botones,borrador){
     return '<div class="ed-item"><div class="ed-item-txt"><strong>'+(borrador?'<span class="etiqueta">Borrador</span> ':'')+esc(titulo||'(sin título)')+'</strong><span>'+esc(sub||'')+'</span></div><div class="ed-item-acc">'+botones+'</div></div>';
@@ -483,6 +485,92 @@
     }catch(er){ if($('l-pub')) $('l-pub').disabled=false; estado(GH.mensajeError(er),'error'); }
   }
 
+  /* ---------- "Más": galería de imágenes (imagen + título) ---------- */
+  function claveMas(x){return String(x.id||x.imagen);}
+  function listaMas(){
+    var l=S.mas;
+    $('ed-cuerpo').innerHTML='<button type="button" class="btn-leer" data-acc="nuevo-mas">+ Nueva imagen</button>'+
+      '<h3 class="ed-sub">Publicadas ('+l.length+')</h3>'+
+      (l.length?'<div class="lista">'+l.map(function(x){
+        return '<div class="ed-item"><div class="ed-item-txt" style="flex-direction:row;align-items:center;gap:10px">'+
+          '<img src="'+esc(x.miniatura||x.imagen)+'" alt="" style="width:48px;height:60px;object-fit:cover;border-radius:8px;background:#EFE8DE;flex:none">'+
+          '<strong>'+esc(x.titulo||'(sin título)')+'</strong></div>'+
+          '<div class="ed-item-acc">'+btn('Editar','edit-mas','data-k="'+esc(claveMas(x))+'"')+btn('Quitar de la app','borra-mas','data-k="'+esc(claveMas(x))+'"','peligro')+'</div></div>';
+      }).join('')+'</div>':'<p class="vacio">Todavía no hay imágenes en “Más”.</p>');
+  }
+  function editorMas(orig){
+    var E={ref:orig?claveMas(orig):'',ocupado:false,imagenNueva:null,mini:null,imagenActual:(orig&&(orig.miniatura||orig.imagen))||'',sinBorrador:true};
+    cont.innerHTML='<form class="form ed-form" id="ed-form" novalidate>'+
+      '<h2 class="ed-titulo">'+(orig?'Editar imagen':'Nueva imagen')+'</h2>'+
+      '<label for="m-file">Imagen (.png, .webp o .jpg)</label><div id="m-img" class="ed-img"></div>'+
+      '<input id="m-file" type="file" accept="image/png,image/webp,image/jpeg,image/*">'+
+      '<label for="m-titulo">Título</label><input id="m-titulo" type="text">'+
+      '<div class="ed-final"><button type="button" class="btn-sec" data-acc="e-vista" style="grid-column:1/-1">Vista previa</button>'+
+      '<button type="button" class="btn-leer ancho" data-acc="e-publicar" id="e-pub">Publicar</button>'+
+      '<button type="button" class="enlace" data-acc="cancelar">Cancelar</button></div>'+
+      '<p class="nota ed-msg" id="ed-estado"></p></form>';
+    $('m-titulo').value=(orig&&orig.titulo)||'';
+    function foto(){return $('m-titulo').value.trim()+'|'+(E.imagenNueva?E.imagenNueva.dataURL.length:0);}
+    var base=foto(); E.cambios=function(){return foto()!==base;};
+    function pintarImg(){
+      var src=E.imagenNueva?E.imagenNueva.dataURL:E.imagenActual;
+      $('m-img').innerHTML=src?'<img src="'+esc(src)+'" alt="Imagen elegida" style="max-height:260px;object-fit:contain;background:#EFE8DE">':'<p class="nota">Todavía no elegiste ninguna imagen.</p>';
+    }
+    pintarImg();
+    $('m-file').addEventListener('change',function(){
+      var f=this.files[0]; if(!f) return;
+      estado('Preparando la imagen…');
+      /* Se guardan dos tamaños: la imagen completa (para ver y compartir) y una miniatura liviana para la galería. */
+      Promise.all([reducirImagen(f,1600,.9),reducirImagen(f,480,.8)]).then(function(r){
+        E.imagenNueva=r[0]; E.mini=r[1]; pintarImg(); estado('');
+      },function(er){estado(er.message,'error');});
+    });
+    E.vista=function(){
+      var src=E.imagenNueva?E.imagenNueva.dataURL:E.imagenActual, t=$('m-titulo').value.trim();
+      mostrarVista('<div class="vista-barra" style="position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:#DCE5D8;color:#4F6B58;font-weight:700;font-size:.85rem">'+
+        '<span>Así se verá</span><button type="button" class="btn-sec" data-cerrar style="background:#fff">Cerrar vista previa</button></div>'+
+        '<div class="pagina" style="max-width:560px;margin:0 auto"><h2 style="font:600 1.6rem/1.15 Georgia,serif;margin:6px 0 12px">'+esc(t||'(sin título)')+'</h2>'+
+        (src?'<img src="'+esc(src)+'" alt="" style="display:block;width:100%;height:auto;border-radius:12px">':'<p class="aviso-vacio">Todavía no elegiste ninguna imagen.</p>')+'</div>');
+    };
+    E.publicar=async function(){
+      if(E.ocupado) return;
+      var t=$('m-titulo').value.trim();
+      if(!E.imagenNueva&&!(orig&&orig.imagen)) return estado('Elegí una imagen.','error');
+      if(!t) return estado('Escribí un título.','error');
+      if(!confirm('¿Publicar esta imagen ahora?')) return;
+      E.ocupado=true; $('e-pub').disabled=true; estado('Publicando… no cierres esta pantalla.');
+      try{
+        var item=Object.assign({},orig||{}); item.titulo=t;
+        if(!item.id) item.id=slug(t,40)+'-'+Date.now().toString(36).slice(-4);
+        if(E.imagenNueva){
+          var raiz='img/mas/'+slug(t,40)+'-'+Date.now().toString(36).slice(-4);
+          estado('Subiendo la imagen…'); await GH.subir(raiz+'.'+E.imagenNueva.ext,E.imagenNueva.blob,'Editor: imagen «'+t+'»');
+          estado('Subiendo la miniatura…'); await GH.subir(raiz+'-mini.'+E.mini.ext,E.mini.blob,'Editor: miniatura «'+t+'»');
+          item.imagen=raiz+'.'+E.imagenNueva.ext; item.miniatura=raiz+'-mini.'+E.mini.ext;
+        }
+        estado('Guardando…');
+        var k=E.ref;
+        S.mas=await GH.modificarJSON('data/mas.json',function(arr){
+          arr=Array.isArray(arr)?arr:[];
+          var i=k?arr.map(claveMas).indexOf(k):-1;
+          if(i>=0) arr[i]=item; else arr.unshift(item);
+          return arr;
+        },'Editor: '+(orig?'actualizar':'publicar')+' imagen «'+t+'»');
+        S.vista='mas'; panel(); C.aviso('Publicado. En un par de minutos lo verán las lectoras.');
+      }catch(er){
+        E.ocupado=false; if($('e-pub')) $('e-pub').disabled=false; estado(GH.mensajeError(er),'error');
+      }
+    };
+    ED=E;
+  }
+  function quitarMas(k){
+    var x=S.mas.filter(function(y){return claveMas(y)===k;})[0]; if(!x) return;
+    if(!confirm('¿Quitar «'+(x.titulo||'esta imagen')+'» de la app? Dejará de verse para las lectoras.')) return;
+    C.aviso('Quitando…');
+    GH.modificarJSON('data/mas.json',function(arr){return (arr||[]).filter(function(y){return claveMas(y)!==k;});},'Editor: quitar imagen «'+(x.titulo||'')+'»')
+      .then(function(l){S.mas=l;panel();C.aviso('Imagen quitada de la app.');}).catch(function(er){C.aviso(GH.mensajeError(er));});
+  }
+
   /* ---------- acciones ---------- */
   function quitarArt(id){
     var a=S.arts.filter(function(x){return String(x.id)===id;})[0]; if(!a) return;
@@ -499,7 +587,11 @@
       .then(function(l){S.devs=l;panel();C.aviso('Devocional quitado de la app.');}).catch(function(er){C.aviso(GH.mensajeError(er));});
   }
   function cancelar(){
-    if(ED&&ED.cambios&&ED.cambios()){
+    if(ED&&ED.cambios&&ED.cambios()&&ED.sinBorrador){
+      dialogo('¿Salir sin publicar?','Hiciste cambios que todavía no están publicados.',[
+        {t:'Seguir editando',cls:'btn-leer'},
+        {t:'Salir sin publicar',cls:'btn-sec peligro',f:panel}]);
+    } else if(ED&&ED.cambios&&ED.cambios()){
       dialogo('¿Qué querés hacer con lo escrito?','Hiciste cambios que todavía no están publicados.',[
         {t:'Guardar borrador',cls:'btn-leer',f:function(){if(ED.borrador()) panel();}},
         {t:'Salir sin guardar',cls:'btn-sec peligro',f:panel},
@@ -524,6 +616,9 @@
     },
     'borra-art':function(b){quitarArt(b.getAttribute('data-id'));},
     'borra-bor':function(b){if(confirm('¿Descartar este borrador? No se puede recuperar.')){quitarBor(b.getAttribute('data-id'));panel();}},
+    'nuevo-mas':function(){editorMas(null);},
+    'edit-mas':function(b){var k=b.getAttribute('data-k'),x=S.mas.filter(function(y){return claveMas(y)===k;})[0]; if(x) editorMas(x);},
+    'borra-mas':function(b){quitarMas(b.getAttribute('data-k'));},
     'nuevo-dev':function(){editorDevocional(null,null);},
     'edit-dev':function(b){
       var f=b.getAttribute('data-f'), d=S.devs.filter(function(x){return x.fecha===f;})[0]; if(!d) return;
