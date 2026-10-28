@@ -9,7 +9,7 @@
    - Se limpian las copias viejas: las de versiones anteriores y las que sobran en la memoria del celular.
    Subí el número de VERSION solo cuando cambie ESTE archivo o la lista PRECARGA. Para publicar contenido
    (artículos, devocionales, imágenes, PDF) no hace falta tocar nada. */
-const VERSION = 'mda-v11';
+const VERSION = 'mda-v12';
 const BASE = VERSION + '-base';     // lo imprescindible para abrir la app sin internet
 const EXTRA = VERSION + '-extra';   // lo que se va viendo (imágenes, PDF, datos, etc.); se recorta solo
 const MAX_EXTRA = 100;              // cantidad máxima de archivos en EXTRA
