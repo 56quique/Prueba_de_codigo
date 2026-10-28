@@ -72,9 +72,23 @@
   }
 
   /* ---------- Devocional ---------- */
+  /* Introducción del mes ("Tema de noviembre"): se toma de data/mes.json según el mes del devocional que se está mirando. */
+  function temaMes(temas,fecha){
+    var k=String(fecha).slice(0,7), t=temas.filter(function(x){return x&&x.mes===k;})[0];
+    if(!t||!/^\d{4}-\d{2}$/.test(k)) return '';
+    var tx=C.lista(t); if(!tx.length&&!t.titulo) return '';
+    var nombre=D.fechaLarga(k+'-01').split(' de ')[1];
+    return '<section class="tema-mes" aria-label="Tema de '+esc(nombre)+'">'+
+      '<span class="etiqueta">Tema de '+esc(nombre)+'</span>'+
+      (t.titulo?'<h3>'+esc(t.titulo)+'</h3>':'')+
+      '<div class="texto-fade cuerpo-tema">'+C.bloques(tx)+'</div>'+
+      '<button type="button" class="btn-leer" data-tema aria-expanded="false">Leer más</button></section>';
+  }
+
   function pDevocional(){
-    Promise.all([C.get('data/devocionales.json'),C.get('data/articulos.json').catch(function(){return [];})]).then(function(r){
-      var todos=Array.isArray(r[0])?r[0]:[], arts=r[1];
+    Promise.all([C.get('data/devocionales.json'),C.get('data/articulos.json').catch(function(){return [];}),
+      fetch('data/mes.json',{cache:'no-cache'}).then(function(x){return x.ok?x.json():[];}).catch(function(){return [];})]).then(function(r){
+      var todos=Array.isArray(r[0])?r[0]:[], arts=r[1], temas=Array.isArray(r[2])?r[2]:[];
       if(!todos.length) return vacio('Todavía no hay devocionales cargados.');
       var hoy=D.hoyISO();
       /* Solo se muestran los publicados (fecha de hoy o anterior). */
@@ -86,7 +100,7 @@
       var texto=C.lista(el);
       var previos=disp.filter(function(x){return x!==el;}).reverse().slice(0,30);
       document.title=el.titulo+' · Mujeres de Acción';
-      cont.innerHTML='<article class="lectura">'+portada(el.imagen)+
+      cont.innerHTML=temaMes(temas,el.fecha)+'<article class="lectura">'+portada(el.imagen)+
         '<div class="fila-etiqueta"><span class="etiqueta">'+(el.fecha===hoy?'Devocional de hoy':'Devocional')+'</span></div>'+
         '<p class="meta">'+esc(fechaTxt(el.fecha))+'</p>'+
         '<h2>'+esc(el.titulo)+'</h2>'+
@@ -100,6 +114,13 @@
           return '<a class="item-dev" href="devocional.html?fecha='+encodeURIComponent(x.fecha)+'"><span class="fecha">'+esc(fechaTxt(x.fecha))+'</span><span>'+esc(x.titulo)+'</span></a>';
         }).join('')+'</div></section>':'');
       N.marcarDev(el.fecha); C.avisos(arts,todos);
+      var tf=cont.querySelector('.tema-mes .texto-fade');
+      if(tf&&tf.clientHeight>0&&tf.scrollHeight<=tf.clientHeight+2) cont.querySelector('.tema-mes').classList.add('corto');   /* si es corto, no hace falta "Leer más" */
+      cont.addEventListener('click',function(ev){
+        var b=ev.target.closest('[data-tema]'); if(!b) return;
+        var s=cont.querySelector('.tema-mes'), abierta=s.classList.toggle('abierta');
+        b.textContent=abierta?'Leer menos':'Leer más'; b.setAttribute('aria-expanded',String(abierta));
+      });
     }).catch(sinDatos);
   }
 

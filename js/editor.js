@@ -3,7 +3,7 @@
   'use strict';
   var C=window.Comun, D=window.Devocional, GH=window.GH;
   var esc=C.esc, cont=document.getElementById('contenido');
-  var S={cfg:null,cats:[],arts:[],devs:[],mas:[],vista:'articulos'};
+  var S={cfg:null,cats:[],arts:[],devs:[],mas:[],mes:[],vista:'articulos'};
   var ED=null, LOTE=[];
   var BKEY='mda_borradores_v1';
 
@@ -200,8 +200,8 @@
   }
   function entrar(){
     cont.innerHTML='<p class="cargando">Cargando tus artículos…</p>';
-    return Promise.all([GH.leerJSON('data/articulos.json'),GH.leerJSON('data/devocionales.json'),GH.leerJSON('data/mas.json')]).then(function(r){
-      S.arts=Array.isArray(r[0].datos)?r[0].datos:[]; S.devs=Array.isArray(r[1].datos)?r[1].datos:[]; S.mas=Array.isArray(r[2].datos)?r[2].datos:[];
+    return Promise.all([GH.leerJSON('data/articulos.json'),GH.leerJSON('data/devocionales.json'),GH.leerJSON('data/mas.json'),GH.leerJSON('data/mes.json')]).then(function(r){
+      S.arts=Array.isArray(r[0].datos)?r[0].datos:[]; S.devs=Array.isArray(r[1].datos)?r[1].datos:[]; S.mas=Array.isArray(r[2].datos)?r[2].datos:[]; S.mes=Array.isArray(r[3].datos)?r[3].datos:[];
       panel();
     }).catch(function(er){
       cont.innerHTML='<div class="error-carga">'+esc(GH.mensajeError(er))+'</div><p><button type="button" class="btn-sec" data-acc="salir">Salir</button></p>';
@@ -242,10 +242,15 @@
     var pub=S.devs.slice().sort(function(a,b){return b.fecha<a.fecha?-1:b.fecha>a.fecha?1:0;});
     var hoy=D.hoyISO();
     $('ed-cuerpo').innerHTML='<div class="acciones"><button type="button" class="btn-leer" data-acc="nuevo-dev">+ Nuevo devocional</button>'+
-      '<button type="button" class="btn-sec" data-acc="lote">Cargar varios juntos</button></div>'+
+      '<button type="button" class="btn-sec" data-acc="lote">Cargar varios juntos</button>'+
+      '<button type="button" class="btn-sec" data-acc="nuevo-mes">Introducción del mes</button></div>'+
       (bor.length?'<h3 class="ed-sub">Borradores</h3><div class="lista">'+bor.map(function(b){
         return item(b.titulo,b.fecha?fechaCorta(b.fecha):'Sin fecha',btn('Continuar','cont-dev','data-id="'+esc(b.id)+'"')+btn('Descartar','borra-bor','data-id="'+esc(b.id)+'"','peligro'),true);
       }).join('')+'</div>':'')+
+      '<h3 class="ed-sub">Introducciones del mes ('+S.mes.length+')</h3>'+
+      (S.mes.length?'<div class="lista">'+S.mes.slice().sort(function(a,b){return a.mes<b.mes?1:a.mes>b.mes?-1:0;}).map(function(x){
+        return item(x.titulo,mesTexto(x.mes),btn('Editar','edit-mes','data-m="'+esc(x.mes)+'"')+btn('Quitar de la app','borra-mes','data-m="'+esc(x.mes)+'"','peligro'));
+      }).join('')+'</div>':'<p class="nota">Todavía no cargaste ninguna.</p>')+
       '<h3 class="ed-sub">Cargados ('+pub.length+')</h3>'+
       (pub.length?'<div class="lista">'+pub.map(function(d){
         return item(d.titulo,fechaCorta(d.fecha)+(d.fecha>hoy?' · aún no se publica':''),
@@ -571,6 +576,78 @@
       .then(function(l){S.mas=l;panel();C.aviso('Imagen quitada de la app.');}).catch(function(er){C.aviso(GH.mensajeError(er));});
   }
 
+  /* ---------- Introducción del mes ("Tema de noviembre", arriba en la pantalla Devocional) ---------- */
+  function mesTexto(m){
+    if(!fechaValida(String(m)+'-01')) return String(m);
+    var t=D.fechaLarga(m+'-01').replace(/^\d+ de /,'');
+    return t.charAt(0).toUpperCase()+t.slice(1);
+  }
+  function mesPorDefecto(){
+    var h=D.hoyISO(), cur=h.slice(0,7), dia=+h.slice(8,10);
+    if(S.mes.some(function(x){return x.mes===cur;})||dia>=20){
+      var y=+cur.slice(0,4), m=+cur.slice(5,7)+1; if(m>12){m=1;y++;}
+      return y+'-'+('0'+m).slice(-2);
+    }
+    return cur;
+  }
+  function editorMes(orig){
+    var E={ref:orig?orig.mes:'',ocupado:false,sinBorrador:true};
+    cont.innerHTML='<form class="form ed-form" id="ed-form" novalidate>'+
+      '<h2 class="ed-titulo">'+(orig?'Editar introducción del mes':'Introducción del mes')+'</h2>'+
+      '<p class="nota">Es el texto que aparece arriba, en la pantalla Devocional, durante todo el mes.</p>'+
+      '<label for="mes-mes">Mes</label><input id="mes-mes" type="month" placeholder="2026-11">'+
+      '<label for="mes-titulo">Título</label><input id="mes-titulo" type="text" placeholder="Ej.: De qué trata este mes">'+
+      campoTexto('mes-texto')+
+      '<div class="ed-final"><button type="button" class="btn-sec" data-acc="e-vista" style="grid-column:1/-1">Vista previa</button>'+
+      '<button type="button" class="btn-leer ancho" data-acc="e-publicar" id="e-pub">Publicar</button>'+
+      '<button type="button" class="enlace" data-acc="cancelar">Cancelar</button></div>'+
+      '<p class="nota ed-msg" id="ed-estado"></p></form>';
+    $('mes-mes').value=orig?orig.mes:mesPorDefecto();
+    $('mes-titulo').value=(orig&&orig.titulo)||'';
+    $('mes-texto').value=parrafosATexto(C.lista(orig||{}));
+    function leer(){return {mes:$('mes-mes').value.trim(),titulo:$('mes-titulo').value.trim(),texto:$('mes-texto').value};}
+    var base=JSON.stringify(leer()); E.cambios=function(){return JSON.stringify(leer())!==base;};
+    $('ed-form').addEventListener('click',function(ev){
+      var s=ev.target.closest('[data-sub]'); if(s) alternarSubtitulo($(s.getAttribute('data-sub')));
+    });
+    E.vista=function(){
+      var v=leer();
+      mostrarVista(htmlVista({etiqueta:'Tema de '+mesTexto(v.mes).split(' de ')[0].toLowerCase(),titulo:v.titulo,parrafos:textoAParrafos(v.texto)}));
+    };
+    E.publicar=async function(){
+      if(E.ocupado) return;
+      var v=leer(), parr=textoAParrafos(v.texto);
+      if(!/^\d{4}-\d{2}$/.test(v.mes)||!fechaValida(v.mes+'-01')) return estado('Elegí el mes (por ejemplo 2026-11).','error');
+      if(!v.titulo) return estado('Escribí el título.','error');
+      if(!parr.length) return estado('Escribí el texto de la introducción.','error');
+      var choca=S.mes.some(function(x){return x.mes===v.mes&&x.mes!==E.ref;});
+      if(choca&&!confirm('Ya hay una introducción para ese mes. ¿Querés reemplazarla?')) return;
+      if(!confirm('¿Publicar esta introducción ahora?')) return;
+      E.ocupado=true; $('e-pub').disabled=true; estado('Publicando… no cierres esta pantalla.');
+      try{
+        var it=Object.assign({},orig||{},{mes:v.mes,titulo:v.titulo,parrafos:parr});
+        delete it.texto; delete it.contenido;
+        S.mes=await GH.modificarJSON('data/mes.json',function(arr){
+          arr=Array.isArray(arr)?arr:[];
+          arr=arr.filter(function(x){return x.mes!==v.mes&&x.mes!==E.ref;});
+          arr.push(it); arr.sort(function(a,b){return a.mes<b.mes?-1:a.mes>b.mes?1:0;});
+          return arr;
+        },'Editor: introducción de '+v.mes);
+        S.vista='devocionales'; panel(); C.aviso('Introducción guardada.');
+      }catch(er){
+        E.ocupado=false; if($('e-pub')) $('e-pub').disabled=false; estado(GH.mensajeError(er),'error');
+      }
+    };
+    ED=E;
+  }
+  function quitarMes(m){
+    var x=S.mes.filter(function(y){return y.mes===m;})[0]; if(!x) return;
+    if(!confirm('¿Quitar la introducción de '+mesTexto(m).toLowerCase()+' de la app? Dejará de verse para las lectoras.')) return;
+    C.aviso('Quitando…');
+    GH.modificarJSON('data/mes.json',function(arr){return (arr||[]).filter(function(y){return y.mes!==m;});},'Editor: quitar introducción de '+m)
+      .then(function(l){S.mes=l;panel();C.aviso('Introducción quitada de la app.');}).catch(function(er){C.aviso(GH.mensajeError(er));});
+  }
+
   /* ---------- acciones ---------- */
   function quitarArt(id){
     var a=S.arts.filter(function(x){return String(x.id)===id;})[0]; if(!a) return;
@@ -619,6 +696,9 @@
     'nuevo-mas':function(){editorMas(null);},
     'edit-mas':function(b){var k=b.getAttribute('data-k'),x=S.mas.filter(function(y){return claveMas(y)===k;})[0]; if(x) editorMas(x);},
     'borra-mas':function(b){quitarMas(b.getAttribute('data-k'));},
+    'nuevo-mes':function(){editorMes(null);},
+    'edit-mes':function(b){var m=b.getAttribute('data-m'),x=S.mes.filter(function(y){return y.mes===m;})[0]; if(x) editorMes(x);},
+    'borra-mes':function(b){quitarMes(b.getAttribute('data-m'));},
     'nuevo-dev':function(){editorDevocional(null,null);},
     'edit-dev':function(b){
       var f=b.getAttribute('data-f'), d=S.devs.filter(function(x){return x.fecha===f;})[0]; if(!d) return;
