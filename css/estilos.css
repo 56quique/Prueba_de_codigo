@@ -269,3 +269,15 @@ img{max-width:100%}
 .gal-item{display:flex;flex-direction:column;padding:0;border:0;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 4px 14px rgba(80,60,40,.09);cursor:pointer;text-align:left;font:inherit;color:inherit}
 .gal-item img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:linear-gradient(160deg,#F1D9D2,#D9E0D2)}
 .gal-item span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;padding:.6em .8em .7em;font-size:.85rem;font-weight:700;line-height:1.25}
+
+/* ---------- Tema del mes (pantalla Devocional) ---------- */
+.tema-mes{margin-bottom:18px;padding:16px;border-radius:22px;background:linear-gradient(135deg,#ECE6F1,#F6EFE9)}
+.tema-mes .etiqueta{background:var(--lila);color:var(--lila-t)}
+.tema-mes h3{margin:.4em 0 .4em;font:600 1.45rem/1.15 var(--serif);color:var(--tinta)}
+.tema-mes .cuerpo-tema{line-height:1.6}
+.tema-mes .cuerpo-tema .sub{margin:.9em 0 .3em;font:600 1.15rem/1.2 var(--serif);color:var(--salvia-os)}
+.tema-mes .cuerpo-tema .cita{margin:.8em 0;padding:.6em .9em;border-left:3px solid var(--salvia);border-radius:0 12px 12px 0;background:rgba(255,255,255,.5);font:italic 500 1.05rem/1.4 var(--serif)}
+.tema-mes.abierta .texto-fade,.tema-mes.corto .texto-fade{max-height:none;-webkit-mask-image:none;mask-image:none}
+.tema-mes.abierta .texto-fade{font-size:.98rem;color:var(--tinta)}
+.tema-mes.abierta .btn-leer::after{transform:rotate(90deg)}
+.tema-mes.corto .btn-leer{display:none}
