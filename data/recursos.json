@@ -1,5 +1,11 @@
 [
   {
+    "titulo": "Constancia",
+    "tipo": "PDF",
+    "descripcion": "Constancia de AFIP",
+    "archivo": "pdf/constancia.pdf"
+  },
+  {
     "titulo": "7242 1 09 2026 INCENTIVO",
     "tipo": "PDF",
     "descripcion": "Sueldo",
